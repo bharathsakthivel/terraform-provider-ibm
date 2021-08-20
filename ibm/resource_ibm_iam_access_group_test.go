@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/IBM-Cloud/bluemix-go/models"
+	// "github.com/IBM-Cloud/bluemix-go/models"
 
 	"strings"
 
+	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -83,7 +85,9 @@ func TestAccIBMIAMAccessGroup_import(t *testing.T) {
 }
 
 func testAccCheckIBMIAMAccessGroupDestroy(s *terraform.State) error {
-	accClient, err := testAccProvider.Meta().(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line
+	// accClient, err := testAccProvider.Meta().(ClientSession).IAMUUMAPIV2()
+	accClient, err := testAccProvider.Meta().(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -115,7 +119,8 @@ func testAccCheckIBMIAMAccessGroupExists(n string, obj models.AccessGroupV2) res
 			return fmt.Errorf("Not found: %s", n)
 		}
 
-		accClient, err := testAccProvider.Meta().(ClientSession).IAMUUMAPIV2()
+		// accClient, err := testAccProvider.Meta().(ClientSession).IAMUUMAPIV2()
+		accClient, err := testAccProvider.Meta().(ClientSession).IAMAccessGroupsV2()
 		if err != nil {
 			return err
 		}

@@ -9,8 +9,11 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
-	"github.com/IBM-Cloud/bluemix-go/bmxerror"
+	// REMOVE below lines 13,14
+	// "github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
+	// "github.com/IBM-Cloud/bluemix-go/bmxerror"
+	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 )
 
 func resourceIBMIAMDynamicRule() *schema.Resource {
@@ -77,7 +80,9 @@ func resourceIBMIAMDynamicRule() *schema.Resource {
 }
 
 func resourceIBMIAMDynamicRuleCreate(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line (83)
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -88,12 +93,17 @@ func resourceIBMIAMDynamicRuleCreate(d *schema.ResourceData, meta interface{}) e
 	expiration := d.Get("expiration").(int)
 
 	var cond []interface{}
-	condition := []iamuumv2.Condition{}
+	// REMOVE below line 97
+	// condition := []iamuumv2.Condition{}
+	// iamuumv2 => iamaccessgroupsv2
+	condition := []iamaccessgroupsv2.Condition{}
 	if res, ok := d.GetOk("conditions"); ok {
 		cond = res.([]interface{})
 		for _, e := range cond {
 			r, _ := e.(map[string]interface{})
-			conditionParam := iamuumv2.Condition{
+			// REMOVE below line 106
+			// conditionParam := iamuumv2.Condition{
+			conditionParam := iamaccessgroupsv2.Condition{
 				Claim:    r["claim"].(string),
 				Operator: r["operator"].(string),
 				Value:    fmt.Sprintf("\"%s\"", r["value"].(string)),
@@ -102,14 +112,18 @@ func resourceIBMIAMDynamicRuleCreate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	createRuleReq := iamuumv2.CreateRuleRequest{
+	// REMOVE below lin 117
+	// createRuleReq := iamuumv2.CreateRuleRequest{
+	createRuleReq := iamaccessgroupsv2.AddAccessGroupRuleule{
 		Name:       name,
 		RealmName:  realm,
 		Expiration: expiration,
 		Conditions: condition,
 	}
 
-	response, err := iamuumClient.DynamicRule().Create(grpID, createRuleReq)
+	// REMOVE below line 126
+	// response, err := iamuumClient.DynamicRule().Create(grpID, createRuleReq)
+	response, err := iamAccessGroupsClient.DynamicRule().Create(grpID, createRuleReq)
 	if err != nil {
 		return err
 	}
@@ -120,7 +134,9 @@ func resourceIBMIAMDynamicRuleCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIBMIAMDynamicRuleRead(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 139
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -133,7 +149,9 @@ func resourceIBMIAMDynamicRuleRead(d *schema.ResourceData, meta interface{}) err
 	grpID := parts[0]
 	ruleID := parts[1]
 
-	rules, _, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	// REMOVE below line 155
+	// rules, _, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	rules, _, err := iamAccessGroupsClient.DynamicRule().Get(grpID, ruleID)
 	if err != nil && !strings.Contains(err.Error(), "404") {
 		return fmt.Errorf("Error retrieving access group Rules: %s", err)
 	} else if err != nil && strings.Contains(err.Error(), "404") {
@@ -153,8 +171,9 @@ func resourceIBMIAMDynamicRuleRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceIBMIAMDynamicRuleUpdate(d *schema.ResourceData, meta interface{}) error {
-
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 177
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -165,7 +184,9 @@ func resourceIBMIAMDynamicRuleUpdate(d *schema.ResourceData, meta interface{}) e
 
 	grpID := parts[0]
 	ruleID := parts[1]
-	_, etag, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	// REMOVE below line 191
+	// _, etag, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	_, etag, err := iamAccessGroupsClient.DynamicRule().Get(grpID, ruleID)
 	if err != nil {
 		return fmt.Errorf("Error retrieving access group Rules: %s", err)
 	}
@@ -175,12 +196,17 @@ func resourceIBMIAMDynamicRuleUpdate(d *schema.ResourceData, meta interface{}) e
 	expiration := d.Get("expiration").(int)
 
 	var cond []interface{}
-	condition := []iamuumv2.Condition{}
+	// REMOVE below line 202
+	// condition := []iamuumv2.Condition{}
+	// iamuumv2 => iamaccessgroupsv2
+	condition := []iamaccessgroupsv2.Condition{}
 	if res, ok := d.GetOk("conditions"); ok {
 		cond = res.([]interface{})
 		for _, e := range cond {
 			r, _ := e.(map[string]interface{})
-			conditionParam := iamuumv2.Condition{
+			// REMOVE below line 211
+			// conditionParam := iamuumv2.Condition{
+			conditionParam := iamaccessgroupsv2.Condition{
 				Claim:    r["claim"].(string),
 				Operator: r["operator"].(string),
 				Value:    fmt.Sprintf("\"%s\"", r["value"].(string)),
@@ -189,13 +215,17 @@ func resourceIBMIAMDynamicRuleUpdate(d *schema.ResourceData, meta interface{}) e
 		}
 	}
 
-	createRuleReq := iamuumv2.CreateRuleRequest{
+	// REMOVE below lin 222
+	// createRuleReq := iamuumv2.CreateRuleRequest{
+	createRuleReq := iamaccessgroupsv2.AddAccessGroupRule{
 		Name:       name,
 		RealmName:  realm,
 		Expiration: expiration,
 		Conditions: condition,
 	}
-	_, err = iamuumClient.DynamicRule().Replace(grpID, ruleID, createRuleReq, etag)
+	// REMOVE below line 230
+	// _, err = iamuumClient.DynamicRule().Replace(grpID, ruleID, createRuleReq, etag)
+	_, err = iamAccessGroupsClient.DynamicRule().Replace(grpID, ruleID, createRuleReq, etag)
 	if err != nil {
 		return err
 	}
@@ -205,7 +235,9 @@ func resourceIBMIAMDynamicRuleUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIBMIAMDynamicRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 242
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -218,7 +250,9 @@ func resourceIBMIAMDynamicRuleDelete(d *schema.ResourceData, meta interface{}) e
 	grpID := parts[0]
 	ruleID := parts[1]
 
-	err = iamuumClient.DynamicRule().Delete(grpID, ruleID)
+	// REMOVE below line 258
+	// rules, _, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	rules, _, err := iamAccessGroupsClient.DynamicRule().Get(grpID, ruleID)
 	if err != nil && !strings.Contains(err.Error(), "404") {
 		return err
 	}
@@ -229,7 +263,9 @@ func resourceIBMIAMDynamicRuleDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIBMIAMDynamicRuleExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 271
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return false, err
 	}
@@ -244,8 +280,11 @@ func resourceIBMIAMDynamicRuleExists(d *schema.ResourceData, meta interface{}) (
 	grpID := parts[0]
 	ruleID := parts[1]
 
-	rules, _, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	// REMOVE below line 289
+	// rules, _, err := iamuumClient.DynamicRule().Get(grpID, ruleID)
+	rules, _, err := iamAccessGroupsClient.DynamicRule().Get(grpID, ruleID)
 	if err != nil {
+		// CHECK
 		if apiErr, ok := err.(bmxerror.RequestFailure); ok {
 			if apiErr.StatusCode() == 404 {
 				return false, nil

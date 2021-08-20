@@ -55,6 +55,7 @@ import (
 	"github.com/IBM/platform-services-go-sdk/catalogmanagementv1"
 	"github.com/IBM/platform-services-go-sdk/enterprisemanagementv1"
 	"github.com/IBM/platform-services-go-sdk/globaltaggingv1"
+	iamaccessgroups "github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	iamidentity "github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	iampolicymanagement "github.com/IBM/platform-services-go-sdk/iampolicymanagementv1"
 	resourcecontroller "github.com/IBM/platform-services-go-sdk/resourcecontrollerv2"
@@ -78,7 +79,8 @@ import (
 	"github.com/IBM-Cloud/bluemix-go/api/globalsearch/globalsearchv2"
 	"github.com/IBM-Cloud/bluemix-go/api/globaltagging/globaltaggingv3"
 	"github.com/IBM-Cloud/bluemix-go/api/hpcs"
-	"github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
+	// REMOVE below line (83) - iamuumv2
+	// "github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
 	"github.com/IBM-Cloud/bluemix-go/api/icd/icdv4"
 	"github.com/IBM-Cloud/bluemix-go/api/mccp/mccpv2"
 	"github.com/IBM-Cloud/bluemix-go/api/resource/resourcev1/catalog"
@@ -195,7 +197,9 @@ type ClientSession interface {
 	GlobalTaggingAPIv1() (globaltaggingv1.GlobalTaggingV1, error)
 	ICDAPI() (icdv4.ICDServiceAPI, error)
 	IAMPolicyManagementV1API() (*iampolicymanagement.IamPolicyManagementV1, error)
-	IAMUUMAPIV2() (iamuumv2.IAMUUMServiceAPIv2, error)
+	// REMOVE below line (201)- IAMUUMAPIV2
+	// IAMUUMAPIV2() (iamuumv2.IAMUUMServiceAPIv2, error)
+	IAMAccessGroupsV2(*iamaccessgroups.IamAccessGroupsV2, error)
 	MccpAPI() (mccpv2.MccpServiceAPI, error)
 	ResourceCatalogAPI() (catalog.ResourceCatalogAPI, error)
 	ResourceManagementAPIv2() (managementv2.ResourceManagementAPIv2, error)
@@ -299,9 +303,9 @@ type clientSession struct {
 
 	globalTaggingConfigErrV1  error
 	globalTaggingServiceAPIV1 globaltaggingv1.GlobalTaggingV1
-
-	iamUUMConfigErrV2  error
-	iamUUMServiceAPIV2 iamuumv2.IAMUUMServiceAPIv2
+	// REMOVE below lines (307, 308) - iamUUMConfigErrV2, iamUUMServiceAPIV2
+	// iamUUMConfigErrV2  error
+	// iamUUMServiceAPIV2 iamuumv2.IAMUUMServiceAPIv2
 
 	userManagementErr error
 	userManagementAPI usermanagementv2.UserManagementAPI
@@ -482,6 +486,10 @@ type clientSession struct {
 	iamPolicyManagementErr error
 	iamPolicyManagementAPI *iampolicymanagement.IamPolicyManagementV1
 
+	//IAM Access Groups
+	iamAccessGroupsErr error
+	iamAccessGroupsAPI *iamaccessgroups.IamAccessGroupsV2
+
 	// CIS Filters options
 	cisFiltersClient *cisfiltersv1.FiltersV1
 	cisFiltersErr    error
@@ -580,9 +588,14 @@ func (sess clientSession) IAMPolicyManagementV1API() (*iampolicymanagement.IamPo
 	return sess.iamPolicyManagementAPI, sess.iamPolicyManagementErr
 }
 
-// IAMUUMAPIV2 provides IAM UUM APIs ...
-func (sess clientSession) IAMUUMAPIV2() (iamuumv2.IAMUUMServiceAPIv2, error) {
-	return sess.iamUUMServiceAPIV2, sess.iamUUMConfigErrV2
+// REMOVE below lines (592-594) - IAMUUMAPIV2
+// func (sess clientSession) IAMUUMAPIV2() (iamuumv2.IAMUUMServiceAPIv2, error) {
+// 	return sess.iamUUMServiceAPIV2, sess.iamUUMConfigErrV2
+// }
+
+// IAMAccessGroupsV2 provides IAM AG APIs ...
+func (sess clientSession) IAMAccessGroupsV2() (iamaccessgroups.IamAccessGroupsV2, error) {
+	return *sess.iamAccessGroupsAPI, sess.iamAccessGroupsErr
 }
 
 // IcdAPI provides IBM Cloud Databases APIs ...
@@ -933,7 +946,8 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.globalTaggingConfigErr = errEmptyBluemixCredentials
 		session.globalTaggingConfigErrV1 = errEmptyBluemixCredentials
 		session.hpcsEndpointErr = errEmptyBluemixCredentials
-		session.iamUUMConfigErrV2 = errEmptyBluemixCredentials
+		// REMOVE below line (950) - iamUUMConfigErrV2
+		// session.iamUUMConfigErrV2 = errEmptyBluemixCredentials
 		session.icdConfigErr = errEmptyBluemixCredentials
 		session.resourceCatalogConfigErr = errEmptyBluemixCredentials
 		session.resourceManagerErr = errEmptyBluemixCredentials
@@ -1407,11 +1421,12 @@ func (c *Config) ClientSession() (interface{}, error) {
 		session.globalTaggingServiceAPIV1.Service.EnableRetries(c.RetryCount, c.RetryDelay)
 	}
 
-	iamuumv2, err := iamuumv2.New(sess.BluemixSession)
-	if err != nil {
-		session.iamUUMConfigErrV2 = fmt.Errorf("Error occured while configuring Bluemix IAMUUM Service: %q", err)
-	}
-	session.iamUUMServiceAPIV2 = iamuumv2
+	// REMOVE below lines (1425-1429) - iamUUMConfigErrV2, iamUUMServiceAPIV2
+	// iamuumv2, err := iamuumv2.New(sess.BluemixSession)
+	// if err != nil {
+	// 	session.iamUUMConfigErrV2 = fmt.Errorf("Error occured while configuring Bluemix IAMUUM Service: %q", err)
+	// }
+	// session.iamUUMServiceAPIV2 = iamuumv2
 
 	icdAPI, err := icdv4.New(sess.BluemixSession)
 	if err != nil {
@@ -2024,6 +2039,29 @@ func (c *Config) ClientSession() (interface{}, error) {
 		iamPolicyManagementClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
 	}
 	session.iamPolicyManagementAPI = iamPolicyManagementClient
+
+	// ag
+	iamAccessGroupsURL := iamaccessgroups.DefaultServiceURL
+	if c.Visibility == "private" || c.Visibility == "public-and-private" {
+		if c.Region == "us-south" || c.Region == "us-east" {
+			iamAccessGroupsURL = contructEndpoint(fmt.Sprintf("private.%s.iam", c.Region), cloudEndpoint)
+		} else {
+			iamAccessGroupsURL = contructEndpoint("private.iam", cloudEndpoint)
+		}
+	}
+	iamAccessGroupsOptions := &iamaccessgroups.IamAccessGroupsV2Options{
+		Authenticator: authenticator,
+		URL:           envFallBack([]string{"IBMCLOUD_IAM_API_ENDPOINT"}, iamAccessGroupsURL),
+	}
+	iamAccessGroupsClient, err := iamaccessgroups.NewIamAccessGroupsV2(iamAccessGroupsOptions)
+	if err != nil {
+		session.vpcErr = fmt.Errorf("Error occured while configuring IAM Policy Management service: %q", err)
+	}
+	if iamAccessGroupsClient != nil && iamAccessGroupsClient.Service != nil {
+		iamAccessGroupsClient.Service.EnableRetries(c.RetryCount, c.RetryDelay)
+	}
+	session.iamAccessGroupsAPI = iamAccessGroupsClient
+	//
 
 	rmURL := resourcemanager.DefaultServiceURL
 	if c.Visibility == "private" {

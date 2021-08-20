@@ -544,7 +544,8 @@ func resourceIBMIAMGetUsers(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return err
 	}
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -600,7 +601,8 @@ func resourceIBMIAMGetUsers(d *schema.ResourceData, meta interface{}) error {
 		}
 
 		// Get AccessGroups associated with user
-		retreivedGroups, err := iamuumClient.AccessGroup().List(accountID, user.IamID)
+		// retreivedGroups, err := iamuumClient.AccessGroup().List(accountID, user.IamID)
+		retreivedGroups, err := iamAccessGroupsClient.AccessGroup().List(accountID, user.IamID)
 		if err != nil {
 			return fmt.Errorf("Error retrieving access groups: %s", err)
 		}

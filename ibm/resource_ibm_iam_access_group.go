@@ -6,10 +6,12 @@ package ibm
 import (
 	"fmt"
 
-	"github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
-	"github.com/IBM-Cloud/bluemix-go/models"
+	// "github.com/IBM-Cloud/bluemix-go/api/iamuum/iamuumv2"
+	// "github.com/IBM-Cloud/bluemix-go/models"
+	// "github.com/IBM-Cloud/bluemix-go/bmxerror"
 
-	"github.com/IBM-Cloud/bluemix-go/bmxerror"
+	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -51,7 +53,9 @@ func resourceIBMIAMAccessGroup() *schema.Resource {
 }
 
 func resourceIBMIAMAccessGroupCreate(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 57
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -71,7 +75,8 @@ func resourceIBMIAMAccessGroupCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	agrp, err := iamuumClient.AccessGroup().Create(request, userDetails.userAccount)
+	// agrp, err := iamuumClient.AccessGroup().Create(request, userDetails.userAccount)
+	agrp, err := iamAccessGroupsClient.AccessGroup().Create(request, userDetails.userAccount)
 	if err != nil {
 		return fmt.Errorf("Error creating access group: %s", err)
 	}
@@ -82,13 +87,15 @@ func resourceIBMIAMAccessGroupCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 91
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
 	agrpID := d.Id()
 
-	agrp, version, err := iamuumClient.AccessGroup().Get(agrpID)
+	agrp, version, err := iamAccessGroupsClient.AccessGroup().Get(agrpID)
 	if err != nil {
 		return fmt.Errorf("Error retrieving access group: %s", err)
 	}
@@ -102,14 +109,17 @@ func resourceIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceIBMIAMAccessGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 113
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
 	agrpID := d.Id()
 
 	hasChange := false
-	updateReq := iamuumv2.AccessGroupUpdateRequest{}
+	// updateReq := iamuumv2.AccessGroupUpdateRequest{}
+	updateReq := iamaccessgroupsv2.UpdateAccessGroupOptions{}
 
 	if d.HasChange("name") {
 		updateReq.Name = d.Get("name").(string)
@@ -122,7 +132,7 @@ func resourceIBMIAMAccessGroupUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if hasChange {
-		_, err = iamuumClient.AccessGroup().Update(agrpID, updateReq, d.Get("version").(string))
+		_, err = iamAccessGroupsClient.AccessGroup().Update(agrpID, updateReq, d.Get("version").(string))
 		if err != nil {
 			return fmt.Errorf("Error updating access group: %s", err)
 		}
@@ -133,14 +143,17 @@ func resourceIBMIAMAccessGroupUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIBMIAMAccessGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 147
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
 
 	agID := d.Id()
 
-	err = iamuumClient.AccessGroup().Delete(agID, true)
+	// err = iamuumClient.AccessGroup().Delete(agID, true)
+	err = iamAccessGroupsClient.AccessGroup().Delete(agID, true)
 	if err != nil {
 		return fmt.Errorf("Error deleting access group: %s", err)
 	}
@@ -151,13 +164,15 @@ func resourceIBMIAMAccessGroupDelete(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceIBMIAMAccessGroupExists(d *schema.ResourceData, meta interface{}) (bool, error) {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 168
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return false, err
 	}
 	agID := d.Id()
 
-	agrp, _, err := iamuumClient.AccessGroup().Get(agID)
+	agrp, _, err := iamAccessGroupsClient.AccessGroup().Get(agID)
 	if err != nil {
 		if apiErr, ok := err.(bmxerror.RequestFailure); ok {
 			if apiErr.StatusCode() == 404 {

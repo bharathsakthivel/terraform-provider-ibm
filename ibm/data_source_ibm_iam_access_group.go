@@ -8,7 +8,9 @@ import (
 
 	"log"
 
-	"github.com/IBM-Cloud/bluemix-go/models"
+	// "github.com/IBM-Cloud/bluemix-go/models"
+	// "github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/IBM/platform-services-go-sdk/iamidentityv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -109,7 +111,10 @@ func dataSourceIBMIAMAccessGroup() *schema.Resource {
 }
 
 func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
-	iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// REMOVE/CHECK the below line (116)
+	// iamuumClient, err := meta.(ClientSession).IAMUUMAPIV2()
+	// ag
+	iamAccessGroupsClient, err := meta.(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
@@ -158,7 +163,10 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 
-	retreivedGroups, err := iamuumClient.AccessGroup().List(accountID)
+	// REMOVE/CHECK the below line (168)
+	// retreivedGroups, err := iamuumClient.AccessGroup().List(accountID)
+	// ag
+	retreivedGroups, err := iamAccessGroupsClient.AccessGroup().List(accountID)
 	if err != nil {
 		return fmt.Errorf("[ERROR] Error retrieving access groups: %s", err)
 	}
@@ -185,11 +193,17 @@ func dataIBMIAMAccessGroupRead(d *schema.ResourceData, meta interface{}) error {
 	grpMap := make([]map[string]interface{}, 0, len(matchGroups))
 
 	for _, grp := range matchGroups {
-		members, err := iamuumClient.AccessGroupMember().List(grp.ID)
+		// REMOVE/CHECK the below line (198)
+		// members, err := iamuumClient.AccessGroupMember().List(grp.ID)
+		// ag
+		members, err := iamAccessGroupsClient.AccessGroupMember().List(grp.ID)
 		if err != nil {
 			log.Println("Error retrieving access group members: ", err)
 		}
-		rules, err := iamuumClient.DynamicRule().List(grp.ID)
+		// REMOVE/CHECK below line (205)
+		// rules, err := iamuumClient.DynamicRule().List(grp.ID)
+		// ag
+		rules, err := iamAccessGroupsClient.DynamicRule().List(grp.ID)
 		if err != nil {
 			log.Println("Error retrieving access group rules: ", err)
 		}

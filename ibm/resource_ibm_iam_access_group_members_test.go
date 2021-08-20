@@ -9,6 +9,8 @@ import (
 
 	"strings"
 
+	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/platform-services-go-sdk/iamaccessgroupsv2"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -87,7 +89,9 @@ func TestAccIBMIAMAccessGroupMember_import(t *testing.T) {
 }
 
 func testAccCheckIBMIAMAccessGroupMemberDestroy(s *terraform.State) error {
-	accClient, err := testAccProvider.Meta().(ClientSession).IAMUUMAPIV2()
+	// REMOVE below line 93
+	// accClient, err := testAccProvider.Meta().(ClientSession).IAMUUMAPIV2()
+	accClient, err := testAccProvider.Meta().(ClientSession).IAMAccessGroupsV2()
 	if err != nil {
 		return err
 	}
